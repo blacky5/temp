@@ -38,13 +38,13 @@ function SoapRequest {
 	curl -k -m 5 $Curluser-H "Content-Type: text/xml; charset="utf-8"" \
 	-H "SoapAction:$2#$3" \
         -d "<?xml version='1.0' encoding='utf-8'?><s:Envelope s:encodingStyle='http://schemas.xmlsoap.org/soap/encoding/' xmlns:s='http://schemas.xmlsoap.org/soap/envelope/'><s:Body><u:$3 xmlns:u='$2'></u:$3></s:Body></s:Envelope>" \
-	-s "http://$FritzBoxIP:49000/$1" | grep -oP "$bashparameter"
+	-s "http://$FritzBoxIP:49000/$1" | perl -nle"print $& while m{$bashparameter}g" 
 }
 
 # Function to query the status screen of FritzBox and process the readings
 # $1 = XML tag to be parsed
 function GetRequest {
-	curl -s "http://$FritzBoxIP:49000/tr64desc.xml" | tr -d "\n" | grep -oP "(?<=<specVersion>).*?(?=</iconList>)" | grep -oP "(?<=<$1>).*?(?=</$1>)"
+	curl -s "http://$FritzBoxIP:49000/tr64desc.xml" | tr -d "\n" | perl -nle"print $& while m{(?<=<specVersion>).*?(?=</iconList>)}g" | perl -nle"print $& while m{(?<=<$1>).*?(?=</$1>)}g"
 }
 
 # Stop script if no host is given
